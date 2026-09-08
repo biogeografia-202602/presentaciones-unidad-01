@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ordenación Ecológica y Análisis Multivariado</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts & Font Awesome Icons -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pinkbg: '#fff0f5',
+            pinkcard: '#fce4ec',
+            pinkaccent: '#ec407a',
+            pinkdark: '#880e4f',
+            pinkmid: '#f8bbd0',
+            pinksubtle: '#fdf2f8'
+          },
+          fontFamily: {
+            serif: ['Playfair Display', 'serif'],
+            sans: ['Plus Jakarta Sans', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #fce4ec;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    .slide {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+      transform: scale(0.98);
+      height: calc(100vh - 80px);
+      max-height: 800px;
+    }
+
+    .slide.active {
+      display: flex;
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(248, 187, 208, 0.6);
+      box-shadow: 0 10px 30px rgba(136, 14, 79, 0.06);
+    }
+
+    .glass-card-accent {
+      background: linear-gradient(135deg, #ffffff 0%, #fff0f5 100%);
+      border-left: 5px solid #ec407a;
+      box-shadow: 0 4px 15px rgba(236, 64, 122, 0.08);
+    }
+
+    /* Custom Scrollbar for inner slide content if screen is small */
+    .slide-scroll::-webkit-scrollbar {
+      width: 6px;
+    }
+    .slide-scroll::-webkit-scrollbar-track {
+      background: #fce4ec;
+      border-radius: 8px;
+    }
+    .slide-scroll::-webkit-scrollbar-thumb {
+      background: #f8bbd0;
+      border-radius: 8px;
+    }
+    .slide-scroll::-webkit-scrollbar-thumb:hover {
+      background: #ec407a;
+    }
+  </style>
+</head>
+<body class="flex flex-col justify-between h-screen w-screen bg-gradient-to-br from-pink-100 via-pink-50 to-pink-200 text-slate-800">
+
+  <header class="w-full h-14 px-6 py-3 flex justify-between items-center bg-white/70 backdrop-blur-md border-b border-pink-200 z-50">
+    <div class="flex items-center space-x-3">
+      <div class="w-8 h-8 rounded-full bg-pinkaccent flex items-center justify-center text-white font-bold text-sm shadow-md">
+        <i class="fa-solid fa-leaf"></i>
+      </div>
+      <span class="font-bold text-pinkdark text-sm sm:text-base tracking-wide">Ecología Multivariada</span>
+    </div>
+    <div class="flex items-center space-x-2 text-xs sm:text-sm font-semibold text-pinkdark bg-pink-100/80 px-3 py-1.5 rounded-full border border-pink-200">
+      <span id="current-slide-num">1</span> / <span id="total-slides-num">10</span>
+    </div>
+  </header>
+
+  <main class="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 flex items-center justify-center overflow-hidden">
+
+    <!-- DIAPOSITIVA 1: PORTADA -->
+    <section class="slide active flex-col justify-center items-center text-center w-full h-full rounded-3xl glass-card p-8 sm:p-12 relative overflow-hidden" id="slide-1">
+      <div class="absolute -top-24 -right-24 w-72 h-72 bg-pinkaccent/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -left-24 w-72 h-72 bg-pinkdark/10 rounded-full blur-3xl pointer-events-none"></div>
+      
+      <span class="px-4 py-1.5 bg-pink-100 text-pinkdark text-xs sm:text-sm font-bold tracking-widest uppercase rounded-full mb-6 border border-pink-200">
+        Análisis Multivariado en Ecología
+      </span>
+      <h1 class="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold text-pinkdark mb-6 leading-tight max-w-4xl">
+        Ordenación Ecológica y Análisis Multivariado
+      </h1>
+      <p class="text-base sm:text-xl text-slate-600 max-w-2xl font-normal leading-relaxed mb-8">
+        Conceptos fundamentales, análisis de gradientes, clasificación de métodos y aplicaciones en comunidades biológicas.
+      </p>
+      <div class="w-20 h-1.5 bg-pinkaccent rounded-full mb-8"></div>
+      <button onclick="nextSlide()" class="px-8 py-3 bg-pinkaccent hover:bg-pink-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
+        <span>Comenzar presentación</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </section>
+
+    <!-- DIAPOSITIVA 2: CONCEPTO DE ORDENACIÓN ECOLÓGICA -->
+    <section class="slide flex-col w-full h-full rounded-3xl glass-card p-6 sm:p-10 slide-scroll overflow-y-auto" id="slide-2">
+      <div class="mb-6">
+        <span class="text-xs font-bold text-pinkaccent uppercase tracking-wider">Fundamentos</span>
+        <h2 class="font-serif text-2xl sm:text-4xl text-pinkdark font-bold mt-1">1. Ordenación Ecológica</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-auto">
+        <div class="p-6 sm:p-8 bg-white rounded-2xl border border-pink-200 shadow-sm hover:shadow-md transition-shadow">
+          <div class="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center text-pinkaccent text-xl mb-4">
+            <i class="fa-solid fa-chart-scatter"></i>
+          </div>
+          <h3 class="text-lg font-bold text-pinkdark mb-3">Representación Espacial</h3>
+          <p class="text-slate-600 leading-relaxed text-sm sm:text-base">
+            Una ordenación es una <strong class="text-pinkdark">“representación gráfica de la similitud de las unidades de muestreo y/o atributos en un espacio de semejanza”</strong>.
+          </p>
+          <div class="mt-4 pt-3 border-t border-pink-100 text-xs font-semibold text-pinkaccent">
+            — Wildi (2010, p. 35)
+          </div>
+        </div>
+
+        <div class="p-6 sm:p-8 bg-white rounded-2xl border border-pink-200 shadow-sm hover:shadow-md transition-shadow">
+          <div class="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center text-pinkaccent text-xl mb-4">
+            <i class="fa-solid fa-layer-group"></i>
+          </div>
+          <h3 class="text-lg font-bold text-pinkdark mb-3">Reconocimiento de Patrones</h3>
+          <p class="text-slate-600 leading-relaxed text-sm sm:text-base">
+            Conjunto diverso de enfoques en estadística multivariante y pilar del reconocimiento de patrones, cuyo objetivo es <strong class="text-pinkdark">reducir o modelar datos multivariantes en gradientes o variables principales</strong>.
+          </p>
+          <div class="mt-4 pt-3 border-t border-pink-100 text-xs font-semibold text-pinkaccent">
+            — sustainabilitymethods.org
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DIAPOSITIVA 3: PROBLEMAS QUE RESUELVE -->
+    <section class="slide flex-col w-full h-full rounded-3xl glass-card p-6 sm:p-10 slide-scroll overflow-y-auto" id="slide-3">
+      <div class="mb-6">
+        <span class="text-xs font-bold text-pinkaccent uppercase tracking-wider">Propósito Analítico</span>
+        <h2 class="font-serif text-2xl sm:text-4xl text-pinkdark font-bold mt-1">2. ¿Qué problema resuelve la ordenación?</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-auto">
+        <div class="p-5 glass-card-accent rounded-xl">
+          <div class="flex items-center gap-3 mb-2">
+            <i class="fa-solid fa-compress text-pinkaccent text-lg"></i>
+            <h3 class="font-bold text-pinkdark text-base sm:text-lg">Reducción Dimensional</h3>
+          </div>
+          <p class="text-slate-600 text-sm leading-relaxed">
+            Resumen los datos en un número reducido de dimensiones, teniendo en cuenta la mayor parte de la variabilidad existente.
+          </p>
+        </div>
+
+        <div class="p-5 glass-card-accent rounded-xl">
+          <div class="flex items-center gap-3 mb-2">
+            <i class="fa-solid fa-eye text-pinkaccent text-lg"></i>
+            <h3 class="font-bold text-pinkdark text-base sm:text-lg">Interpretación Simplificada</h3>
+          </div>
+          <p class="text-slate-600 text-sm leading-relaxed">
+            Facilitan la lectura e interpretación de grandes matrices de datos ecológicos complejos.
+          </p>
+        </div>
+
+        <div class="p-5 glass-card-accent rounded-xl">
+          <div class="flex items-center gap-3 mb-2">
+            <i class="fa-solid fa-filter text-pinkaccent text-lg"></i>
+            <h3 class="font-bold text-pinkdark text-base sm:text-lg">Minimización de Pérdida</h3>
+          </div>
+          <p class="text-slate-600 text-sm leading-relaxed">
+            Minimizan al mismo tiempo la pérdida de información intrínseca que conlleva toda síntesis estadística.
+          </p>
+        </div>
+
+        <div class="p-5 glass-card-accent rounded-xl">
+          <div class="flex items-center gap-3 mb-2">
+            <i class="fa-solid fa-diagram-project text-pinkaccent text-lg"></i>
+            <h3 class="font-bold text-pinkdark text-base sm:text-lg">Evaluación de Patrones</h3>
+          </div>
+          <p class="text-slate-600 text-sm leading-relaxed">
+            Determinan si la relación especie-entorno observada es mayor de lo que cabría esperar por mero azar.
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-4 text-right text-xs font-semibold text-pinkdark">
+        Citas: Gray, L. K. (s. f.) | S. B. Perelman & L. E. Puhl
+      </div>
+    </section>
+
+    <!-- DIAPOSITIVA 4: GRADIENTE ECOLÓGICO -->
+    <section class="slide flex-col w-full h-full rounded-3xl glass-card p-6 sm:p-10 slide-scroll overflow-y-auto" id="slide-4">
+      <div class="mb-4">
+        <span class="text-xs font-bold text-pinkaccent uppercase tracking-wider">Relaciones Complejas</span>
+        <h2 class="font-serif text-2xl sm:text-4xl text-pinkdark font-bold mt-1">3. Gradiente Ecológico</h2>
+      </div>
+
+      <p class="text-slate-700 text-sm sm:text-base mb-6 leading-relaxed bg-white/80 p-4 rounded-xl border border-pink-200">
+        El análisis de gradientes se refiere a la disposición de dos conjuntos de datos con variables que presentan relaciones de causa y efecto o influencias recíprocas entre sí.
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-auto">
+        <div class="p-5 bg-white rounded-xl border border-pink-200 shadow-sm">
+          <div class="flex items-center gap-2 mb-2 text-pinkaccent font-bold text-sm">
+            <i class="fa-solid fa-arrow-right-arrow-left"></i>
+            <span>Variables Causa-Efecto</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            Un caso claro de variables independientes (p. ej., el <strong class="text-pinkdark">clima</strong>) frente a un conjunto de variables dependientes (p. ej., la <strong class="text-pinkdark">frecuencia de especies</strong>).
+          </p>
+        </div>
+
+        <div class="p-5 bg-white rounded-xl border border-pink-200 shadow-sm">
+          <div class="flex items-center gap-2 mb-2 text-pinkaccent font-bold text-sm">
+            <i class="fa-solid fa-arrows-rotate"></i>
+            <span>Influencias Recíprocas</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            A veces la distinción no es fácil si hay influencia recíproca (p. ej., datos de la <strong class="text-pinkdark">comunidad de herbívoros</strong> frente a la <strong class="text-pinkdark">comunidad vegetal</strong>).
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-4 p-4 bg-pink-100/90 rounded-xl border border-pink-300 flex items-start gap-3 text-pinkdark text-xs sm:text-sm">
+        <i class="fa-solid fa-triangle-exclamation text-pinkaccent text-base mt-0.5"></i>
+        <span>
+          <strong>Limitación Estadística:</strong> Es casi seguro que las pruebas estadísticas convencionales fracasen debido a que existen muchas variables (columnas) en relación con las observaciones independientes (filas).
+        </span>
+      </div>
+
+      <div class="mt-2 text-right text-xs font-semibold text-pinkdark">
+        Cita: Gray, L. K. (s. f.). Gradient analysis.
+      </div>
+    </section>
+
+    <!-- DIAPOSITIVA 5: MAPA CONCEPTUAL COMPLETO EN 1 SOLA HOJA -->
+    <section class="slide flex-col w-full h-full rounded-3xl glass-card p-4 sm:p-6 justify-between overflow-hidden" id="slide-5">
+      <div class="text-center mb-2">
+        <span class="text-xs font-bold text-pinkaccent uppercase tracking-widest">Esquema General</span>
+        <h2 class="font-serif text-xl sm:text-2xl font-bold text-pinkdark">Mapa Conceptual de Ordenación Ecológica</h2>
+      </div>
+
+      <!-- Conceptual Map Flowchart Container -->
+      <div class="flex-1 flex flex-col justify-between py-2 text-xs sm:text-sm">
+        <!-- Root Node -->
+        <div class="flex justify-center">
+          <div class="px-6 py-2 bg-pinkdark text-white font-extrabold rounded-full shadow-md uppercase tracking-wider text-sm sm:text-base">
+            ORDENACIÓN
+          </div>
+        </div>
+
+        <!-- Level 1 Branches -->
+        <div class="grid grid-cols-2 gap-4 my-1">
+          <!-- Directa -->
+          <div class="bg-white p-3 rounded-xl border-2 border-pink-300 text-center shadow-sm">
+            <div class="font-bold text-pinkdark uppercase text-xs sm:text-sm mb-1">Directa / Restringida</div>
+            <div class="text-slate-600 text-[11px] sm:text-xs">
+              Matriz de variables de respuesta + variables explicativas
+            </div>
+          </div>
+
+          <!-- Indirecta -->
+          <div class="bg-white p-3 rounded-xl border-2 border-pinkaccent text-center shadow-sm relative">
+            <div class="font-bold text-pinkdark uppercase text-xs sm:text-sm mb-1">Indirecta / No Restringida</div>
+            <div class="text-slate-600 text-[11px] sm:text-xs">
+              Una única matriz con variables de respuesta
+            </div>
+            <div class="mt-1 pt-1 border-t border-pink-100 text-[10px] sm:text-[11px] text-pinkaccent font-semibold">
+              + Se agregan datos adicionales (Ambiente, Ubicación)
+            </div>
+          </div>
+        </div>
+
+        <!-- Level 2 Sub-branch for Indirect Analysis -->
+        <div class="flex justify-end pr-2 sm:pr-8">
+          <div class="w-1/2 bg-pink-100 border border-pinkaccent rounded-lg py-1 px-3 text-center font-bold text-pinkdark text-xs uppercase">
+            Análisis de Gradiente Indirecto
+          </div>
+        </div>
+
+        <!-- Level 3 Methods -->
+        <div class="grid grid-cols-2 gap-4 my-1">
+          <!-- Valores Propios -->
+          <div class="bg-white p-2.5 rounded-xl border border-pink-300">
+            <div class="text-center font-bold text-pinkdark text-xs mb-1 bg-pink-50 py-0.5 rounded">
+              VALORES PROPIOS (Valores y vectores propios)
+            </div>
+            <div class="grid grid-cols-2 gap-2 mt-1.5 text-center">
+              <div class="bg-pink-50 p-1.5 rounded-lg border border-pink-100">
+                <span class="block text-[10px] font-bold text-pinkaccent uppercase">Lineales</span>
+                <span class="block text-xs sm:text-sm font-extrabold text-pinkdark mt-0.5">ACP / PCA</span>
+              </div>
+              <div class="bg-pink-50 p-1.5 rounded-lg border border-pink-100">
+                <span class="block text-[10px] font-bold text-pinkaccent uppercase">Unimodales</span>
+                <span class="block text-xs sm:text-sm font-extrabold text-pinkdark mt-0.5">CA / DCA</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Distancias -->
+          <div class="bg-white p-2.5 rounded-xl border border-pink-300 flex flex-col justify-between">
+            <div class="text-center font-bold text-pinkdark text-xs mb-1 bg-pink-50 py-0.5 rounded">
+              DISTANCIAS
+            </div>
+            <p class="text-[10px] sm:text-[11px] text-slate-500 text-center my-0.5">
+              Patrones en la matriz de distancias
+            </p>
+            <div class="bg-pink-50 p-2 rounded-lg border border-pink-100 text-center">
+              <span class="block text-xs sm:text-sm font-extrabold text-pinkdark">NMDS / PCoA</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-right text-[11px] italic font-medium text-pinkdark mt-1">
+        Ilustración: S. B. PERELMAN & L. E. PUHL.
+      </div>
+    </section>
+
+    <!-- DIAPOSITIVA 6: PCA -->
+    <section class="slide flex-col w-full h-full rounded-3xl glass-card p-6 sm:p-8 slide-scroll overflow-y-auto" id="slide-6">
+      <div class="mb-4">
+        <span class="text-xs font-bold text-pinkaccent uppercase tracking-wider">Métodos Lineales</span>
+        <h2 class="font-serif text-2xl sm:text-3xl text-pinkdark font-bold mt-1">6. PCA — Análisis de Componentes Principales</h2>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center my-auto">
+        <div class="lg:col-span-5 space-y-4">
+          <div class="p-4 bg-white rounded-xl border border-pink-200 text-slate-700 text-xs sm:text-sm leading-relaxed shadow-sm">
+            El <strong class="text-pinkdark">PCA</strong> reduce los datos multivariados a componentes principales artificiales basados en combinaciones lineales.
+          </div>
+          <div class="p-4 bg-white rounded-xl border border-pink-200 text-slate-700 text-xs sm:text-sm leading-relaxed shadow-sm">
+            Muestra las variables predictoras como un <strong>vector</strong>, donde la longitud indica el poder de correlación con los ejes artificiales y la dirección muestra con qué ejes se correlaciona.
+          </div>
+          <div class="text-xs font-semibold text-pinkaccent">
+            (Wildi 2010, p. 35)
+          </div>
+        </div>
+
+        <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="bg-white p-2 rounded-xl border border-pink-200 shadow-sm flex flex-col items-center">
+            <img src="PCA1.png" alt="PCA Scatter Plot 1" class="max-h-48 sm:max-h-56 object-contain rounded-lg" onerror="this.onerror=null; this.src='https://placehold.co/400x300/fce4ec/880e4f?text=PCA+Gr%C3%A1fico+1';">
+            <span class="text-[10px] text-slate-500 mt-1 text-center">Gráfico de dispersión</span>
+          </div>
+          <div class="bg-white p-2 rounded-xl border border-pink-200 shadow-sm flex flex-col items-center">
+            <img src="PCA2.png" alt="PCA Scatter Plot 2" class="max-h-48 sm:max-h-56 object-contain rounded-lg" onerror="this.onerror=null; this.src='https://placehold.co/400x300/fce4ec/880e4f?text=PCA+Gr%C3%A1fico+2';">
+            <span class="text-[10px] text-slate-500 mt-1 text-center">Dispersión con eje principal</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DIAPOSITIVA 7: CA -->
+    <section class="slide flex-col w-full h-full rounded-3xl glass-card p-6 sm:p-8 slide-scroll overflow-y-auto" id="slide-7">
+      <div class="mb-4">
+        <span class="text-xs font-bold text-pinkaccent uppercase tracking-wider">Métodos Unimodales</span>
+        <h2 class="font-serif text-2xl sm:text-3xl text-pinkdark font-bold mt-1">7. CA — Análisis de Correspondencia</h2>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center my-auto">
+        <div class="lg:col-span-5 space-y-4">
+          <div class="p-4 bg-white rounded-xl border border-pink-200 text-slate-700 text-xs sm:text-sm leading-relaxed shadow-sm">
+            El <strong class="text-pinkdark">Análisis de Correspondencias (CA)</strong> crea ejes ortogonales que representan una reducción de la dimensionalidad de los datos de entrada.
+          </div>
+          <div class="p-4 bg-white rounded-xl border border-pink-200 text-slate-700 text-xs sm:text-sm leading-relaxed shadow-sm">
+            Reduce los datos categóricos multivariados a ejes artificiales, de los cuales el <strong class="text-pinkdark">primer eje contiene el mayor poder explicativo</strong>.
+          </div>
+          <div class="text-xs font-semibold text-pinkaccent">
+            (Wildi 2010, p. 35)
+          </div>
+        </div>
+
+        <div class="lg:col-span-7 bg-white p-3 rounded-xl border border-pink-200 shadow-sm flex justify-center items-center">
+          <img src="CA.png" alt="Análisis de Correspondencia Biplot" class="max-h-64 sm:max-h-72 object-contain rounded-lg" onerror="this.onerror=null; this.src='https://placehold.co/500x350/fce4ec/880e4f?text=Biplot+An%C3%A1lisis+de+Correspondencia';">
+        </div>
+      </div>
+    </section>
+
+    <!-- DIAPOSITIVA 8: NMDS -->
+    <section class="slide flex-col w-full h-full rounded-3xl glass-card p-6 sm:p-8 slide-scroll overflow-y-auto" id="slide-8">
+      <div class="mb-4">
+        <span class="text-xs font-bold text-pinkaccent uppercase tracking-wider">Métodos Basados en Distancias</span>
+        <h2 class="font-serif text-2xl sm:text-3xl text-pinkdark font-bold mt-1">8. NMDS — Escalamiento Multidimensional No Métrico</h2>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center my-auto">
+        <div class="lg:col-span-5 space-y-4">
+          <div class="p-4 bg-white rounded-xl border border-pink-200 text-slate-700 text-xs sm:text-sm leading-relaxed shadow-sm">
+            El <strong class="text-pinkdark">NMDS</strong> permite manejar la no linealidad de los datos ecológicos.
+          </div>
+          <div class="p-4 bg-white rounded-xl border border-pink-200 text-slate-700 text-xs sm:text-sm leading-relaxed shadow-sm">
+            Reduce datos multivariados y calcula un valor de <strong class="text-pinkdark">estrés (stress)</strong>, el cual mide la eficacia con la que el análisis redujo la información a ejes artificiales.
+          </div>
+          <div class="p-4 bg-pink-100/80 rounded-xl border border-pink-200 text-pinkdark text-xs sm:text-sm font-medium">
+            <i class="fa-solid fa-sliders text-pinkaccent mr-1"></i>
+            En este método, el usuario predefine previamente el número de ejes que espera obtener.
+          </div>
+          <div class="text-xs font-semibold text-pinkaccent">
+            (Wildi 2010, p. 35)
+          </div>
+        </div>
+
+        <div class="lg:col-span-7 bg-white p-3 rounded-xl border border-pink-200 shadow-sm flex justify-center items-center">
+          <img src="nmds.png" alt="NMDS Ordination Plot" class="max-h-64 sm:max-h-72 object-contain rounded-lg" onerror="this.onerror=null; this.src='https://placehold.co/500x350/fce4ec/880e4f?text=Gr%C3%A1fico+NMDS';">
+        </div>
+      </div>
+    </section>
+
+    <!-- DIAPOSITIVA 9: PCoA Y QUADRO COMPARATIVO -->
+    <section class="slide flex-col w-full h-full rounded-3xl glass-card p-6 sm:p-8 slide-scroll overflow-y-auto" id="slide-9">
+      <div class="mb-3">
+        <span class="text-xs font-bold text-pinkaccent uppercase tracking-wider">Síntesis Metodológica</span>
+        <h2 class="font-serif text-2xl sm:text-3xl text-pinkdark font-bold mt-1">9. PCoA y Comparación de Métodos</h2>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center my-auto">
+        <div class="lg:col-span-4 space-y-3">
+          <div class="p-4 bg-white rounded-xl border border-pink-200 text-slate-700 text-xs sm:text-sm leading-relaxed shadow-sm">
+            <strong class="text-pinkdark">PCoA (Análisis de Coordenadas Principales):</strong> Su elemento atractivo es que puede aplicarse a medidas de distancia semimétricas (aquellas que no satisfacen la desigualdad triangular).
+          </div>
+          <div class="text-xs font-semibold text-pinkaccent">
+            (Wildi 2010, p. 35)
+          </div>
+          <div class="text-xs italic text-slate-500 pt-2 border-t border-pink-200">
+            Ilustración: S. B. PERELMAN & L. E. PUHL.
+          </div>
+        </div>
+
+        <div class="lg:col-span-8 bg-white p-3 rounded-xl border border-pink-200 shadow-sm flex justify-center items-center">
+          <img src="cuadro comparativo metodos multivariado.png" alt="Cuadro Comparativo de Métodos Multivariados" class="max-h-64 sm:max-h-80 object-contain rounded-lg" onerror="this.onerror=null; this.src='https://placehold.co/600x350/fce4ec/880e4f?text=Cuadro+Comparativo+M%C3%A9todos+Multivariados';">
+        </div>
+      </div>
+    </section>
+
+    <!-- DIAPOSITIVA 10: REFERENCIAS BIBLIOGRÁFICAS -->
+    <section class="slide flex-col w-full h-full rounded-3xl glass-card p-6 sm:p-10 slide-scroll overflow-y-auto" id="slide-10">
+      <div class="mb-6">
+        <span class="text-xs font-bold text-pinkaccent uppercase tracking-wider">Documentación</span>
+        <h2 class="font-serif text-2xl sm:text-4xl text-pinkdark font-bold mt-1">Referencias Bibliográficas</h2>
+      </div>
+
+      <div class="my-auto bg-white p-6 rounded-2xl border border-pink-200 shadow-sm space-y-4">
+        <div class="flex gap-3 text-xs sm:text-sm text-slate-700 border-b border-pink-100 pb-3">
+          <i class="fa-solid fa-bookmark text-pinkaccent mt-1"></i>
+          <div>
+            <strong>Verniest, Fabien; Greulich, Sabine.</strong> (2019). Methods for assessing the effects of environmental parameters on biological communities in long-term ecological studies - A literature review. <em>Ecological Modelling</em>, 414, 108732. doi:10.1016/j.ecolmodel.2019.1087
+          </div>
+        </div>
+
+        <div class="flex gap-3 text-xs sm:text-sm text-slate-700 border-b border-pink-100 pb-3">
+          <i class="fa-solid fa-bookmark text-pinkaccent mt-1"></i>
+          <div>
+            <strong>Perelman, S. B. & L. E. Puhl.</strong> (2023). Multivariate approach in botany and ecology. <em>Darwiniana</em>, nueva serie 11(1): 272-294.
+          </div>
+        </div>
+
+        <div class="flex gap-3 text-xs sm:text-sm text-slate-700 border-b border-pink-100 pb-3">
+          <i class="fa-solid fa-bookmark text-pinkaccent mt-1"></i>
+          <div>
+            <strong>Wildi, O.</strong> (2010). <em>Data Analysis in Vegetation Ecology</em>. Wiley-Blackwell, West Sussex, UK.
+          </div>
+        </div>
+
+        <div class="flex gap-3 text-xs sm:text-sm text-slate-700 border-b border-pink-100 pb-3">
+          <i class="fa-solid fa-bookmark text-pinkaccent mt-1"></i>
+          <div>
+            <strong>Mangeaud, Arnaldo.</strong> (2004). La aplicación de Técnicas de Ordenación Multivariadas en la Entomología. <em>Revista de la Sociedad Entomológica Argentina</em>, 63(3-4), 1-10.
+          </div>
+        </div>
+
+        <div class="flex gap-3 text-xs sm:text-sm text-slate-700">
+          <i class="fa-solid fa-bookmark text-pinkaccent mt-1"></i>
+          <div>
+            <strong>Gray, L. K.</strong> (s. f.). Gradient analysis.
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER NAVIGATION CONTROLS -->
+  <footer class="w-full h-16 px-6 py-3 bg-white/70 backdrop-blur-md border-t border-pink-200 flex justify-between items-center z-50">
+    <button id="prev-btn" onclick="prevSlide()" class="px-5 py-2 bg-white hover:bg-pink-100 text-pinkdark border border-pink-300 font-bold rounded-xl shadow-sm transition-all flex items-center gap-2 text-sm disabled:opacity-40 disabled:cursor-not-allowed">
+      <i class="fa-solid fa-chevron-left"></i>
+      <span>Anterior</span>
+    </button>
+
+    <!-- Slide Indicators -->
+    <div id="dots-container" class="hidden sm:flex items-center space-x-2">
+      <!-- Dots populated dynamically via JS -->
+    </div>
+
+    <button id="next-btn" onclick="nextSlide()" class="px-5 py-2 bg-pinkaccent hover:bg-pink-600 text-white font-bold rounded-xl shadow-md transition-all flex items-center gap-2 text-sm disabled:opacity-40 disabled:cursor-not-allowed">
+      <span>Siguiente</span>
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
+  </footer>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 10;
+
+    // Initialize slide controls & dots
+    function initPresentation() {
+      document.getElementById('total-slides-num').textContent = totalSlides;
+      
+      const dotsContainer = document.getElementById('dots-container');
+      dotsContainer.innerHTML = '';
+      
+      for (let i = 1; i <= totalSlides; i++) {
+        const dot = document.createElement('button');
+        dot.className = `w-2.5 h-2.5 rounded-full transition-all ${i === 1 ? 'bg-pinkaccent w-6' : 'bg-pink-300 hover:bg-pink-400'}`;
+        dot.setAttribute('aria-label', `Ir a diapositiva ${i}`);
+        dot.onclick = () => goToSlide(i);
+        dot.id = `dot-${i}`;
+        dotsContainer.appendChild(dot);
+      }
+      
+      updateSlideVisibility();
+    }
+
+    function goToSlide(slideNum) {
+      if (slideNum < 1 || slideNum > totalSlides) return;
+      currentSlide = slideNum;
+      updateSlideVisibility();
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        currentSlide++;
+        updateSlideVisibility();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        currentSlide--;
+        updateSlideVisibility();
+      }
+    }
+
+    function updateSlideVisibility() {
+      // Hide all slides
+      for (let i = 1; i <= totalSlides; i++) {
+        const slide = document.getElementById(`slide-${i}`);
+        const dot = document.getElementById(`dot-${i}`);
+        
+        if (slide) {
+          slide.classList.remove('active');
+        }
+        
+        if (dot) {
+          if (i === currentSlide) {
+            dot.className = 'w-6 h-2.5 rounded-full bg-pinkaccent transition-all';
+          } else {
+            dot.className = 'w-2.5 h-2.5 rounded-full bg-pink-300 hover:bg-pink-400 transition-all';
+          }
+        }
+      }
+
+      // Show current slide
+      const activeSlide = document.getElementById(`slide-${currentSlide}`);
+      if (activeSlide) {
+        activeSlide.classList.add('active');
+      }
+
+      // Update counters & buttons
+      document.getElementById('current-slide-num').textContent = currentSlide;
+      document.getElementById('prev-btn').disabled = (currentSlide === 1);
+      document.getElementById('next-btn').disabled = (currentSlide === totalSlides);
+    }
+
+    // Keyboard Navigation (Arrow Keys & Space)
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        prevSlide();
+      }
+    });
+
+    // Run on Load
+    window.onload = initPresentation;
+  </script>
+</body>
+</html>
